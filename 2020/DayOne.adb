@@ -23,9 +23,6 @@ begin
     for i in inputNumbahs'Range loop
         for j in (i+1) .. inputNumbahs'Last-1 loop
             begin 
-                if i = j then
-                    Raise continue;
-                end if;
                 if numbahs(i)+numbahs(j) > 2020 then
                     Raise continue;
                 end if;
