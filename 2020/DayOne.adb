@@ -21,7 +21,7 @@ begin
     New_Line;
     -- Part 2
     for i in inputNumbahs'Range loop
-        for j in inputNumbahs'Range loop
+        for j in (i+1) .. inputNumbahs'Last-1 loop
             begin 
                 if i = j then
                     Raise continue;
