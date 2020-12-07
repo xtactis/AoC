@@ -71,7 +71,9 @@ func main() {
     
     root := getInd(begin[0])
 
-    for i := 0; i < len(bags)-1; i++ {
+    lastBag := len(bags)-1
+    bags[lastBag] = bags[lastBag][:len(bags[lastBag])-1]
+    for i := 0; i < len(bags); i++ {
       bags[i] = strings.TrimSuffix(bags[i], "s")
       bags[i] = strings.TrimSuffix(bags[i], " bag")
       
@@ -82,17 +84,6 @@ func main() {
 
       g[root] = append(g[root], Node{getInd(bags[i]), number})
     }
-    lastBag := len(bags)-1
-    bags[lastBag] = bags[lastBag][:len(bags[lastBag])-1]
-    bags[lastBag] = strings.TrimSuffix(bags[lastBag], "s")
-    bags[lastBag] = strings.TrimSuffix(bags[lastBag], " bag")
-    
-    trogir := strings.SplitN(bags[lastBag], " ", 2)
-    bags[lastBag] = trogir[1]
-    var number int
-    fmt.Sscanf(trogir[0], "%d", &number)
-
-    g[root] = append(g[root], Node{getInd(bags[lastBag]), number})
   }
 
   target := str2int["shiny gold"]
