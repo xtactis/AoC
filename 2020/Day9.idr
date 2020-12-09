@@ -37,29 +37,30 @@ min : List Integer -> Integer
 min [] = 9999999999 -- stop iterating lol
 min (h :: t) = min1 h (min t)
 
-part2 : List Integer-> Integer -> List Integer -> Integer
+part2 : List Integer-> Integer -> List Integer -> Integer -> Integer
 --part2 selected cur nums
-part2 (selh :: selt) cur (numh :: numt) with (cur > 22406676)
-    | True = part2 selt (cur-selh) (numh :: numt)
-    | _ with (cur == 22406676)
+part2 (selh :: selt) cur (numh :: numt) target with (cur > target)
+    | True = part2 selt (cur-selh) (numh :: numt) target
+    | _ with (cur == target)
         | True = (min (selh :: selt)) + (max (selh :: selt))
-        | _ = part2 ((selh :: selt) ++ [numh]) (cur+numh) numt
+        | _ = part2 ((selh :: selt) ++ [numh]) (cur+numh) numt target
 
 p1 : List Integer -> Integer
 p1 nums = part1 (Prelude.List.take 25 nums) (Prelude.List.drop 25 nums)
 
-p2 : List Integer -> Integer
-p2 (h :: t) = part2 [h] h (h :: t)
+p2 : List Integer -> Integer -> Integer
+p2 (h :: t) target = part2 [h] h (h :: t) target 
 
 solve : List Integer -> List Integer
-solve nums = [p1 nums, p2 nums]
+solve nums = [x, p2 nums x]
+where x = p1 nums
 
 processInput : String -> List Integer
 processInput text = map (\x => fromMaybe 0 (parseInteger x)) (lines text)
 
 main : IO()
 main = do 
-    file <- readFile "input.txt"
+    file <- readFile "../../aoc2020/AoC/2020/input.txt"
     case file of
         Right text => printLn $ solve $ processInput text
         Left err => printLn err
