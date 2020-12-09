@@ -3,31 +3,21 @@ import Data.String
 
 findResidual : List Integer -> Integer -> Bool
 findResidual [] _ = False
-findResidual (h :: t) x with (h == x)
-    | True = True
-    | _ = findResidual t x
+findResidual (h :: t) x = (h == x) || findResidual t x
 
 findSum : List Integer -> Integer -> Bool
 findSum [] _ = False
-findSum (h :: t) x with (findResidual t (x-h))
-    | True = True
-    | _ = findSum t x
+findSum (h :: t) x = (findResidual t (x-h)) || findSum t x
 
 part1 : List Integer -> List Integer -> Integer
 part1 use [] = -1 -- shouldn't happen
-part1 (uh :: ut) (h :: t) with (findSum (uh :: ut) h)
-    | True = part1 (ut ++ [h]) t
-    | _ = h
+part1 (uh :: ut) (h :: t) = if (findSum (uh :: ut) h) then part1 (ut ++ [h]) t else h
 
 max1 : Integer -> Integer -> Integer
-max1 x y with (x > y)
-    | True = x
-    | _ = y
+max1 x y = if (x > y) then x else y
 
 min1 : Integer -> Integer -> Integer
-min1 x y with (x > y)
-    | True = y
-    | _ = x
+min1 x y = if (x > y) then y else x
 
 max : List Integer -> Integer
 max [] = -1 -- stop iterating lol
@@ -38,7 +28,6 @@ min [] = 9999999999 -- stop iterating lol
 min (h :: t) = min1 h (min t)
 
 part2 : List Integer-> Integer -> List Integer -> Integer -> Integer
---part2 selected cur nums
 part2 (selh :: selt) cur (numh :: numt) target with (cur > target)
     | True = part2 selt (cur-selh) (numh :: numt) target
     | _ with (cur == target)
@@ -60,7 +49,7 @@ processInput text = map (\x => fromMaybe 0 (parseInteger x)) (lines text)
 
 main : IO()
 main = do 
-    file <- readFile "../../aoc2020/AoC/2020/input.txt"
+    file <- readFile "input.txt"
     case file of
         Right text => printLn $ solve $ processInput text
         Left err => printLn err
