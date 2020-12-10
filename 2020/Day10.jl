@@ -11,12 +11,12 @@ for i = 2:n
   d[nums[i]-nums[i-1]] += 1
 end
 
-dp = fill(-1, (n,n))
-function countWays(prev, cur)
-  if cur == n return nums[cur]-nums[prev] <= 3 end
-  if nums[cur]-nums[prev] > 3 return 0 end
-  if dp[prev, cur] != -1 return dp[prev, cur] end
-  return dp[prev, cur] = countWays(prev, cur+1) + countWays(cur, cur+1)
+dp = fill(-1, (4,n))
+function countWays(skip, cur)
+  if cur == n return nums[cur]-nums[cur-skip] <= 3 end
+  if nums[cur]-nums[cur-skip] > 3 return 0 end
+  if dp[skip, cur] != -1 return dp[skip, cur] end
+  return dp[skip, cur] = countWays(skip+1, cur+1) + countWays(1, cur+1)
 end
 
 print("part1: ", d[1]*d[3], "\n")
