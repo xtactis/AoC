@@ -3,25 +3,27 @@ import java.io.File
 var dy = intArrayOf(-1, -1, -1,  0, 0,  1, 1, 1)
 var dx = intArrayOf(-1,  0,  1, -1, 1, -1, 0, 1)
 
-fun solve(brod: ArrayList<ArrayList<Int>>, part: Int): Int {
-  var buf1 = ArrayList<ArrayList<Int>>()
-  var buf2 = ArrayList<ArrayList<Int>>()
+fun solve(brod: ArrayList<ArrayList<Char>>, part: Int): Int {
+  var buf1 = ArrayList<ArrayList<Char>>()
+  var buf2 = ArrayList<ArrayList<Char>>()
   for (row in brod) {
-    buf1.add(ArrayList<Int>())
-    buf2.add(ArrayList<Int>())
+    buf1.add(ArrayList<Char>())
+    buf2.add(ArrayList<Char>())
     for (cell in row) {
       buf1[buf1.size-1].add(cell)
-      buf2[buf2.size-1].add(0)
+      buf2[buf2.size-1].add(cell)
     }
   }
   var ret = 0
-  while (!buf1.equals(buf2)) {
+  var changed = true
+  while (changed) {
+    changed = false
     ret = 0
     for (i in buf1.indices) {
       for (j in buf1[i].indices) {
-        var center: Int = buf1[i][j]
-        if (center == -1) {
-          buf2[i][j] = -1
+        var center: Char = buf1[i][j]
+        if (center == '.') {
+          buf2[i][j] = '.'
           continue
         }
         var cnt = 0;
@@ -37,20 +39,22 @@ fun solve(brod: ArrayList<ArrayList<Int>>, part: Int): Int {
               x += dx[k]
               if (y < 0 || y >= buf1.size) break
               if (x < 0 || x >= buf1[i].size) break
-            } while (buf1[y][x] == -1)
+            } while (buf1[y][x] == '.')
           }
           if (y < 0 || y >= buf1.size) continue
           if (x < 0 || x >= buf1[i].size) continue
-          if (buf1[y][x] == 1) ++cnt
+          if (buf1[y][x] == '#') ++cnt
         }
-        if (center == 0 && cnt == 0) {
-          buf2[i][j] = 1
+        if (center == 'L' && cnt == 0) {
+          buf2[i][j] = '#'
           ++ret
-        } else if (center == 1 && cnt >= part+3) { 
+          changed = true
+        } else if (center == '#' && cnt >= part+3) { 
           // so we can just use the part number as the limit for occupied seats (4/5)
-          buf2[i][j] = 0
+          buf2[i][j] = 'L'
+          changed = true
         } else {
-          if (buf1[i][j] == 1) ++ret
+          if (buf1[i][j] == '#') ++ret
           buf2[i][j] = buf1[i][j]
         }
       }
@@ -61,12 +65,11 @@ fun solve(brod: ArrayList<ArrayList<Int>>, part: Int): Int {
 }
 
 fun main(args: Array<String>) {
-  var brod = ArrayList<ArrayList<Int>>()
+  var brod = ArrayList<ArrayList<Char>>()
   File("input.txt").forEachLine { 
-    brod.add(ArrayList<Int>())
-    for (i in it) {
-      var x = if (i == 'L') 0 else -1;
-      brod[brod.size-1].add(x)
+    brod.add(ArrayList<Char>())
+    for (c in it) {
+      brod[brod.size-1].add(c)
     }
   }
   print("part 1: ")
