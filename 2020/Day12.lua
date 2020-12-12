@@ -44,43 +44,11 @@ posy = 0
 wayx = 10
 wayy = 1
 
-local lefttable = {
-  [ 0] = {
-    [ 0] = { 0,  0},
-    [ 1] = {-1,  0},
-    [-1] = { 1,  0}
-  },
-  [ 1] = {
-    [ 0] = { 0,  1},
-    [ 1] = {-1,  1},
-    [-1] = { 1,  1},
-  },
-  [-1] = {
-    [ 0] = { 0, -1},
-    [ 1] = {-1, -1},
-    [-1] = { 1, -1},
-  },
-}
-
-function sign(x)
-  return (x > 0 and 1) or (x == 0 and 0) or -1
-end
-
-function left2(val)
-  val = val / 90
-  local x = sign(wayx)
-  local y = sign(wayy)
-  if val % 2 == 1 then
-    wayx, wayy = wayy, wayx
-  end
-  while val ~= 0 do
-    tmp = lefttable[x][y]
-    x = tmp[1]
-    y = tmp[2]
-    val = val - 1
-  end
-  wayx = math.abs(wayx)*x
-  wayy = math.abs(wayy)*y
+function left3(val)
+  val = math.rad(val)
+  local c = math.cos(val)
+  local s = math.sin(val)
+  wayx, wayy = c*wayx-s*wayy, s*wayx+c*wayy
 end
 
 optable = {
@@ -89,8 +57,8 @@ optable = {
   ['W'] = function(val) wayx = wayx - val end,
   ['N'] = function(val) wayy = wayy + val end,
   ['F'] = function(val) posx, posy = posx + wayx*val, posy + wayy*val end,
-  ['L'] = left2,
-  ['R'] = function(val) left2(360-val) end
+  ['L'] = left3,
+  ['R'] = function(val) left3(360-val) end
 }
 
 for _, s in pairs(lines) do
