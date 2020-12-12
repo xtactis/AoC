@@ -9,16 +9,8 @@ function lines_from(file)
   return lines
 end
 
-local dir = 0
-local posx = 0
-local posy = 0
-
-local dirtable = {
-  [0] = 'E',
-  [1] = 'S',
-  [2] = 'W',
-  [3] = 'N'
-}
+local dir, posx, posy = 0, 0, 0
+local dirtable = {'E', 'S', 'W', 'N'}
 
 local optable = {
   ['E'] = function(val) posx = posx + val end,
@@ -33,18 +25,15 @@ local lines = lines_from('input.txt')
 for _, s in pairs(lines) do
   op = s[0]
   val = tonumber(string.match(s, "%d+"))
-  if op == 'F' then op = dirtable[dir] end
+  if op == 'F' then op = dirtable[dir+1] end
   optable[op](val)
 end
 
 part1 = math.abs(posx)+math.abs(posy)
 
-posx = 0
-posy = 0
-wayx = 10
-wayy = 1
+posx, posy, wayx, wayy = 0, 0, 10, 1
 
-function left3(val)
+function left2(val)
   val = math.rad(val)
   local c = math.cos(val)
   local s = math.sin(val)
@@ -57,8 +46,8 @@ optable = {
   ['W'] = function(val) wayx = wayx - val end,
   ['N'] = function(val) wayy = wayy + val end,
   ['F'] = function(val) posx, posy = posx + wayx*val, posy + wayy*val end,
-  ['L'] = left3,
-  ['R'] = function(val) left3(360-val) end
+  ['L'] = left2,
+  ['R'] = function(val) left2(360-val) end
 }
 
 for _, s in pairs(lines) do
