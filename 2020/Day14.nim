@@ -9,7 +9,7 @@ type
     Mask, Mem
   Op = object
     case kind: OpType
-    of Mask: m1, m2: int
+    of Mask: m1, m2, m3: int
     of Mem: ind, val: int
 
 proc parse(file: string): seq[Op] = 
@@ -41,12 +41,21 @@ func part1(input: seq[Op]): int =
   return ret
 
 func storeMem(ind, val, mask: int, mem: var Table[int, int]) =
-  var i = mask.firstSetBit()-1
-  if i == -1:
-    mem[ind] = val
-  else:
-    storeMem(ind or (2^i), val, mask and not (2^i), mem)
-    storeMem(ind and not (2^i), val, mask and not (2^i), mem)
+  var stack: array[2048, (int, int)] # should be good until 11 Xs
+  var stackptr = 0
+  stack[stackptr] = (ind, mask)
+  inc stackptr
+  while stackptr > 0:
+    dec stackptr
+    let (ind, mask) = stack[stackptr]
+    var i = mask.firstSetBit()-1
+    if i == -1:
+      mem[ind] = val
+    else:
+      stack[stackptr] = (ind or (2^i), mask and not (2^i))
+      inc stackptr
+      stack[stackptr] = (ind and not (2^i), mask and not (2^i))
+      inc stackptr
 
 func part2(input: seq[Op]): int =
   var mem: Table[int, int]
