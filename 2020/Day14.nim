@@ -3,7 +3,6 @@ import tables
 import bitops # figure out something nice
 import strscans
 import strutils
-import sequtils
 
 type
   OpType = enum
