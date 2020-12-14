@@ -9,7 +9,7 @@ type
     Mask, Mem
   Op = object
     case kind: OpType
-    of Mask: m1, m2, m3: int
+    of Mask: m1, m2: int
     of Mem: ind, val: int
 
 proc parse(file: string): seq[Op] = 
@@ -26,7 +26,7 @@ proc parse(file: string): seq[Op] =
       input.add(Op(kind: Mask, m1: m1, m2: m2))
   return input
 
-proc part1(input: seq[Op]): int =
+func part1(input: seq[Op]): int =
   var mem: Table[int, int]
   var m1, m2, ret: int
   for op in input:
@@ -40,7 +40,7 @@ proc part1(input: seq[Op]): int =
     ret += e
   return ret
 
-proc storeMem(ind, val, mask: int, mem: var Table[int, int]) =
+func storeMem(ind, val, mask: int, mem: var Table[int, int]) =
   var i = mask.firstSetBit()-1
   if i == -1:
     mem[ind] = val
@@ -48,7 +48,7 @@ proc storeMem(ind, val, mask: int, mem: var Table[int, int]) =
     storeMem(ind or (2^i), val, mask and not (2^i), mem)
     storeMem(ind and not (2^i), val, mask and not (2^i), mem)
 
-proc part2(input: seq[Op]): int =
+func part2(input: seq[Op]): int =
   var mem: Table[int, int]
   var m1, m2, ret: int
   for op in input:
