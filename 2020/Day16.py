@@ -22,7 +22,6 @@ def part1():
 
 def part2():
   nearbyGood = list(filter(lambda t: all(map(checkval, t)), nearby))
-
   possibles = sorted([getpossible(i, nearbyGood) for i in range(len(myticket))], key=lambda s: len(s[0]))
   useless = set()
   result = 1
