@@ -40,7 +40,7 @@ fn eval(line: &String, part: u8) -> i64 {
   let mut calc: Vec<i64> = Vec::new();
   for e in output {
     if e.is_ascii_digit() {
-      calc.push(e.to_digit(10).unwrap_or(0u32).try_into().unwrap());
+      calc.push(e.to_digit(10).unwrap().try_into().unwrap());
     } else if e == '+' {
       let a = calc.pop().unwrap();
       let b = calc.pop().unwrap();
