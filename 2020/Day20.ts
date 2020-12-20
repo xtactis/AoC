@@ -1,6 +1,4 @@
-import { setupMaster } from 'cluster';
 import { readFileSync } from 'fs';
-import { exit } from 'process';
 
 const file = readFileSync('./input.txt', 'utf-8');
 const images = file.split('\n\n')
@@ -12,6 +10,9 @@ const pattern = ["                  # ",
                  " #  #  #  #  #  #   "].map(row => row.split(""));
 
 const n = images.length;
+
+const dx = [0, -1, 0, 1]
+const dy = [-1, 0, 1, 0];
 
 const rotate = (matrix: any[][]) => {
     return matrix.map((row, i) =>
@@ -45,42 +46,17 @@ const getPossibleEdges = (img: string[][]) => {
     return ret;
 }
 
-const match = (edge:string, v:string[][], onFound: (edgeObj, img:string[][]) => string[][]) => {
+const match = (u: string[][], v:string[][], ind: number) => {
+    const edge = rotateImage(u, ind)[0].join("");
     const possible = getPossibleEdges(v);
     for (const e of possible) {
         if (e.edge.join("") == edge) {
-            return onFound(e, rotateImage(v, e.rot));
+            let tmp = rotateImage(v, e.rot)
+            if (!e.flip) tmp = flip(tmp);
+            return rotateImage(tmp, ind%2==1?ind:(2-ind));
         }
     }
     return false;
-}
-
-const top = (u:string[][], v:string[][]) => {
-    return match(u[0].join(""), v, (e, img) => {
-        if (!e.flip) img = flip(img);
-        return rotateImage(img, 2);
-    });
-}
-
-const bottom = (u:string[][], v:string[][]) => {
-    return match(u[u.length-1].join(""), v, (e, img) => {
-        if (e.flip) return flip(img);
-        return img;
-    });
-}
-
-const left = (u:string[][], v:string[][]) => {
-    return match(rotateImage(u)[0].join(""), v, (e, img) => {
-        if (!e.flip) img = flip(img);
-        return rotateImage(img, 1);
-    });
-}
-
-const right = (u:string[][], v:string[][]) => {
-    return match(rotateImage(u, 3)[0].join(""), v, (e, img) => {
-        if (!e.flip) img = flip(img);
-        return rotateImage(img, 3);
-    });
 }
 
 const findOne = (polje: string[][], i: number, j: number, goodOnes: boolean[][]) => {
@@ -161,25 +137,13 @@ const part2 = () => {
         cntMap[uid].forEach(vid => {
             if (bio[vid]) return;
             const v = idk[vid];
-            let res;
-            if (res = top(u, v)) {
+            for (let i = 0; i < 4; ++i) {
+                let res = match(u, v, i);
+                if (!res) continue;
                 idk[vid] = res;
                 bio[vid] = true;
-                queue.push([vid, x, y-10]);
-            } else if (res = left(u, v)) {
-                idk[vid] = res;
-                bio[vid] = true;
-                queue.push([vid, x-10, y]);
-            } else if (res = bottom(u, v)) {
-                idk[vid] = res;
-                bio[vid] = true;
-                queue.push([vid, x, y+10]);
-            } else if (res = right(u, v)) {
-                idk[vid] = res;
-                bio[vid] = true;
-                queue.push([vid, x+10, y]);
-            } else {
-                console.log("you fucked up");
+                queue.push([vid, x+u.length*dx[i], y+u.length*dy[i]]);
+                break;
             }
         });
     }
