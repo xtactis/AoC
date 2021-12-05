@@ -25,8 +25,6 @@ co2 = lines.copy()
 for i in range(N):
     e = count(oxy)[i]
     f = count(co2)[i]
-    print(oxy)
-    print(e)
     if len(oxy) > 1: 
         oxy = list(filter(lambda x: int(x[i]) == 1 if e[0] == e[1] else e[int(x[i])] > e[1-int(x[i])], oxy))
     if len(co2) > 1: 
