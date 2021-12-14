@@ -25,4 +25,4 @@ for steps in (10, 40):
     for k in keys:
         for a, b in pairwise(template):
             res[k] += rec(a, b, steps, k)
-    print(res[max(res, key=res.get)]-res[min(res, key=res.get)])
+    print(max(res.values())-min(res.values()))
