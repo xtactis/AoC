@@ -22,17 +22,20 @@ def rotate(points, xt, yt, zt):
         np.append(p)
     return np
 
-def allrot(points):
-    for x in range(4):
-        for y in range(4):
-            for z in range(4):
-                yield rotate(points, x, y, z)
+allrot = [(x, y, z) for x in range(4) for y in range(4) for z in range(4)]
+t = set()
+rot = []
+for r in allrot:
+    x = rotate([(1, 2, 3)], *r)[0]
+    if x in t: continue
+    rot.append(r)
+    t.add(x)
 
 def check(reference, new, dontcheck):
-    for np in allrot(new):
+    for np in (rotate(new, *r) for r in rot):
         for rp in reference:
             if rp in dontcheck: continue
-            for p in np:
+            for p in np[:-12]:
                 nnp = set(tuple(ex-px+rpx for ex, px, rpx in zip(e, p, rp)) for e in np)
                 int = reference.intersection(nnp)
                 if len(int) >= 12:
