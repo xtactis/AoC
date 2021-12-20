@@ -30,6 +30,17 @@ def unflatten(l):
         l = nl
     return l[0][0]
 
+def unflatten(A):
+    # ivceh again, 100ms faster overall
+    def helper(A, level=0):
+        x, depth = A[-1]
+        if depth == level:
+            A.pop()
+            return x
+        else:
+            return [helper(A, level + 1), helper(A, level + 1)]
+    return helper(list(reversed(A)))
+
 def explode(l):
     nl = []
     exploded = False
