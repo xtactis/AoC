@@ -22,10 +22,6 @@
                              (regexp-match* #rx"[0-9]+")
                              (map string->number))))
 
-(define (draw-crates crates)
-  (for ([col crates]) (printf "~a\n" col))
-  (newline))
-
 (define (solve crates moves op)
   (if (empty? moves) 
     crates
