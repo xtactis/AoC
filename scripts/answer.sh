@@ -2,7 +2,7 @@ cookie=$AOC_COOKIE
 user_data="github.com/xtactis/AoC by matija.dizdar@pm.me"
 
 level=${3:-1}
-day=${1:-$(date +%d)}
+day=${1:-$(date +%-d)}
 year=${2:-$(date +%Y)}
 answer=`cat | tail -n 1`
 
