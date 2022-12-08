@@ -41,11 +41,12 @@
   (define taketh (takef line (lambda (p) (< (car p) height))))
   (min (length line) (+ 1 (length taketh))))
 
+(define inputT (transpose input))
 (for*/fold ([part-2 0])
            ([i (in-range (length input))]
             [j (in-range (length (first input)))])
            (define row (list-ref input i))
-           (define col (list-ref (transpose input) j))
+           (define col (list-ref inputT j))
            (define cur (car (list-ref row j)))
            (max part-2 (* (count_visible_trees (reverse (take row j)) cur)
                           (count_visible_trees (rest (drop row j)) cur)
