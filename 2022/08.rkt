@@ -41,13 +41,14 @@
   (define taketh (takef line (lambda (p) (< (car p) height))))
   (min (length line) (+ 1 (length taketh))))
 
-(foldl max 0 (for*/list ([i (in-range  (length input))]
-                         [j (in-range  (length (first input)))])
-                        (define row (list-ref input i))
-                        (define col (list-ref (transpose input) j))
-                        (define cur (car (list-ref row j)))
-                        (* (count_visible_trees (reverse (take row j)) cur)
-                           (count_visible_trees (rest (drop row j)) cur)
-                           (count_visible_trees (reverse (take col i)) cur)
-                           (count_visible_trees (rest (drop col i)) cur))))
+(for*/fold ([part-2 0])
+           ([i (in-range (length input))]
+            [j (in-range (length (first input)))])
+           (define row (list-ref input i))
+           (define col (list-ref (transpose input) j))
+           (define cur (car (list-ref row j)))
+           (max part-2 (* (count_visible_trees (reverse (take row j)) cur)
+                          (count_visible_trees (rest (drop row j)) cur)
+                          (count_visible_trees (reverse (take col i)) cur)
+                          (count_visible_trees (rest (drop col i)) cur))))
 
