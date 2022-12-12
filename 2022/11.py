@@ -21,18 +21,21 @@ def parsemonkey(s):
 
 
 monkeys = list(map(parsemonkey, sys.stdin.read()[:-1].split("\n\n")))
-inspections = [0]*len(monkeys)
 megatest = math.lcm(*megatest)
 
-for rnd in range(10000):
-    print(rnd)
-    for i, monkey in enumerate(monkeys):
-        for item in monkey["items"]:
-            item = monkey["op"](item) % megatest
-            monkeys[monkey[monkey["test"](item)]]["items"].append(item)
-            inspections[i] += 1
-        monkey["items"] = []
+def solve(monkeys, part=1):
+    from copy import deepcopy
+    monkeys = deepcopy(monkeys)
+    inspections = [0]*len(monkeys)
+    for rnd in range(20 if part==1 else 10000):
+        for i, monkey in enumerate(monkeys):
+            for item in monkey["items"]:
+                item = (monkey["op"](item) // (3 if part==1 else 1))% megatest
+                monkeys[monkey[monkey["test"](item)]]["items"].append(item)
+                inspections[i] += 1
+            monkey["items"] = []
+    inspections = sorted(inspections)
+    print(inspections[-2]*inspections[-1])
 
-print(inspections)
-inspections = sorted(inspections)
-print(inspections[-2]*inspections[-1])
+solve(monkeys)
+solve(monkeys, part=2)
