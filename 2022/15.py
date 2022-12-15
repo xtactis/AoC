@@ -1,11 +1,11 @@
 import sys
 
 inp = [[int(e.split("=")[1][:-1]) for i, e in enumerate(l.split(" ")) if i in [2, 3, 8, 9]] for l in sys.stdin.readlines()]
+inp = [[x1, y1, abs(y2-y1)+abs(x2-x1)] for x1, y1, x2, y2 in inp]
 
 def solve(y):
     ranges = []
-    for x1, y1, x2, y2 in inp:
-        dist = abs(y2-y1)+abs(x2-x1)
+    for x1, y1, dist in inp:
         w = dist-abs(y1-y)
         if w < 0:
             continue
@@ -20,7 +20,7 @@ def solve(y):
     return right-left, False
 
 print(solve(2000000)[0])
-for y in range(0, 4000001):
+for y in range(4000000, -1, -1):
     ans, part2 = solve(y)
     if part2:
         print(ans)
