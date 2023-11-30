@@ -9,7 +9,6 @@ import "core:time"
 
 get_input :: proc(loc := #caller_location) -> (input: string, success: bool) {
     stem := filepath.short_stem(loc.file_path)
-    fmt.printf("%s\n", stem)
     infile := strings.concatenate({stem, ".in"})
     if !os.exists(infile) {
         libc.system(fmt.ctprintf("get_input %s", stem))
