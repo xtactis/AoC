@@ -4,6 +4,7 @@ import "core:c/libc"
 import "core:fmt"
 import "core:os"
 import "core:path/filepath"
+import "core:strconv"
 import "core:strings"
 import "core:time"
 
@@ -27,4 +28,16 @@ get_input :: proc(loc := #caller_location) -> string {
 
 get_lines :: proc(loc := #caller_location) -> []string {
     return strings.split_lines(get_input(loc))
+}
+
+parse_int :: proc(s: string) -> int {
+    return strconv.parse_int(s) or_else fmt.panicf("couldn't parse int from %s", s)
+}
+
+parse_ints :: proc(s: []string) -> []int {
+    result := make([]int, len(s))
+    for ss, i in s {
+        result[i] = parse_int(ss)
+    }
+    return result
 }
