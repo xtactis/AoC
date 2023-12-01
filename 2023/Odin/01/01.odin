@@ -25,8 +25,8 @@ main :: proc() {
         }
         first_idx := first
         last_idx := last
-        first = int(line[first]) - 48
-        last = int(line[last]) - 48
+        first = int(line[first] - '0')
+        last = int(line[last] - '0')
         part1 += first*10 + last
         
         for string_digit, index in ([]string{"one", "two", "three", "four", "five", "six", "seven", "eight", "nine"}) {
@@ -42,7 +42,6 @@ main :: proc() {
             }
         }
         part2 += first*10 + last
-        fmt.printf("%d\n", first*10 + last)
     }
     fmt.printf("%d\n", part1)
     fmt.printf("%d\n", part2)
