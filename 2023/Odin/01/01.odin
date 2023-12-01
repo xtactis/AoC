@@ -3,28 +3,20 @@ package Day01
 import "core:fmt"
 import "core:math"
 import "core:strings"
+import "core:unicode"
 
 import AOC ".."
 
-is_digit :: proc(x: rune) -> bool {
-    digits : bit_set[0..=9] = {0, 1, 2, 3, 4, 5, 6, 7, 8, 9}
-    return int(x-48) in digits
-}
-
 main :: proc() {
-    input, ok := AOC.get_input()
-    if !ok {
-        fmt.panicf("failed to get input!!!")
-    }
+    lines := AOC.get_lines()
 
-    lines := strings.fields(input)
     part1 := 0
     part2 := 0
     for line in lines {
         first : int = -1
         last : int
         for c, index in line {
-            if is_digit(c) {
+            if unicode.is_digit(c) {
                 if first == -1 {
                     first = index
                 }
@@ -50,6 +42,7 @@ main :: proc() {
             }
         }
         part2 += first*10 + last
+        fmt.printf("%d\n", first*10 + last)
     }
     fmt.printf("%d\n", part1)
     fmt.printf("%d\n", part2)
