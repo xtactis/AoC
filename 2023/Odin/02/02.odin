@@ -29,8 +29,8 @@ part2 :: proc(games: []Game) -> int {
     return result
 }
 
-parse :: proc(lines: []string) -> (games: []Game, ok: bool) {
-    games, ok = make([]Game, len(lines)), true
+parse :: proc(lines: []string) -> []Game {
+    games := make([]Game, len(lines))
     for line, i in lines {
         sdata := strings.split_multi(line, {": ", ", ", "; "})
         colors :: [3]string{"red", "green", "blue"}
@@ -38,19 +38,19 @@ parse :: proc(lines: []string) -> (games: []Game, ok: bool) {
             matcher := match.matcher_init(line, strings.concatenate({"(%d+) ", color}))
             for snum, index in match.matcher_match_iter(&matcher) {
                 games[i][color] = max(
-                    strconv.parse_int(snum) or_return,
+                    strconv.parse_int(snum) or_else fmt.panicf("input is ill-formed!!!"),
                     games[i][color]
                 )
             }
         }
     }
 
-    return
+    return games
 }
 
 main :: proc() {
     input := AOC.get_lines()
-    games := parse(input) or_else fmt.panicf("input is ill-formed!!!")
+    games := parse(input) 
     fmt.printf("%d\n", part1(games))
     fmt.printf("%d\n", part2(games))
 }
