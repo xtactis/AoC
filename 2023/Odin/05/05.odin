@@ -46,7 +46,6 @@ solve :: proc(input: Input) -> (int, int) {
     }
     merged : [dynamic]Seed
     for conv in input.conv {
-        fmt.println(conv)
         results : [dynamic]Seed
         for seed, i in sr {
             for j := 0; j < seed.r; j += 1 {
@@ -58,7 +57,10 @@ solve :: proc(input: Input) -> (int, int) {
                 }
                 l := L
                 if l == -1 {
-                    append(&results, Seed{s = seed.s+j, r = 1})
+                    r := min(seed.r-j, conv[0][1]-(seed.s+j))
+                    append(&results, Seed{s = seed.s+j, r = r})
+                    j += r-1
+
                     continue
                 }
                 d, s, r := conv[l][0], conv[l][1], conv[l][2]
@@ -71,7 +73,14 @@ solve :: proc(input: Input) -> (int, int) {
 
                     j += ns.r-1
                 } else {
-                    append(&results, Seed{s = seed.s+j, r = 1})
+                    if l == len(conv)-1 {
+                        append(&results, Seed{s = seed.s+j, r = seed.r-j})
+                        j = seed.r
+                    } else {
+                        r := min(seed.r-j, conv[l+1][1]-(seed.s+j))
+                        append(&results, Seed{s = seed.s+j, r = r})
+                        j += r-1
+                    }
                 }
             }
         }
