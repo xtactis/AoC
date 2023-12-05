@@ -5,48 +5,29 @@ import "core:math"
 import "core:slice"
 import "core:strings"
 import "core:strconv"
+import "core:time"
 import "core:unicode"
 
 import AOC ".."
 
 Input :: struct {
     seeds : []int,
-    conv: [7][][]int,
+    conv: [7][][3]int,
 }
 
-solve :: proc(input: Input) -> (int, int) {
-    part1, part2 := 0, 0
+Seed :: struct {
+    s: int,
+    r: int,
+}
 
-    seeds := slice.clone(input.seeds)
-    for conv in input.conv {
-        done := make([]bool, len(seeds))
-        for l in conv {
-            d, s, r := l[0], l[1], l[2]
-            for seed, i in seeds {
-                if done[i] do continue
-                if seed >= s && seed < s + r {
-                   seeds[i] = seed-s+d 
-                   done[i] = true
-                }
-            }
-        }
-    }
-    part1 = seeds[0]
-    for s in seeds {
-        part1 = min(s, part1)
-    }
-
-    Seed :: struct {
-        s: int,
-        r: int,
-    }
-    sr := make([]Seed, len(input.seeds)/2)
-    for i := 0; i < len(input.seeds)/2; i += 1 {
-        sr[i] = Seed{s = input.seeds[2*i], r = input.seeds[2*i+1]}
-    }
-    merged : [dynamic]Seed
-    for conv in input.conv {
-        results : [dynamic]Seed
+find_min :: proc(sr: []Seed, _conv: [7][][3]int) -> (result: int) {
+    sr := slice.clone(sr)
+    merged := make([dynamic]Seed, 0, len(sr)*4)
+    results := make([dynamic]Seed, 0, len(sr)*4)
+    defer delete(merged)
+    defer delete(results)
+    for conv in _conv {
+        clear(&results)
         for seed, i in sr {
             for j := 0; j < seed.r; j += 1 {
                 L, R := -1, len(conv)
@@ -60,7 +41,6 @@ solve :: proc(input: Input) -> (int, int) {
                     r := min(seed.r-j, conv[0][1]-(seed.s+j))
                     append(&results, Seed{s = seed.s+j, r = r})
                     j += r-1
-
                     continue
                 }
                 d, s, r := conv[l][0], conv[l][1], conv[l][2]
@@ -70,7 +50,6 @@ solve :: proc(input: Input) -> (int, int) {
                         r = min(s+r-(seed.s+j), seed.r-j),
                     }
                     append(&results, ns)
-
                     j += ns.r-1
                 } else {
                     if l == len(conv)-1 {
@@ -98,12 +77,29 @@ solve :: proc(input: Input) -> (int, int) {
         }
         sr = merged[:]
     }
-    part2 = sr[0].s
+    result = sr[0].s
     for r in sr {
-        part2 = min(r.s, part2)
+        result = min(r.s, result)
     }
+    return
+}
 
-    return part1, part2
+solve :: proc(input: Input) -> (part1, part2: int) {
+    sr := make([dynamic]Seed, 0, len(input.seeds))
+    defer delete(sr)
+
+    for i := 0; i < len(input.seeds); i += 1 {
+        append(&sr, Seed{s = input.seeds[i], r = 1})
+    }
+    part1 = find_min(sr[:], input.conv)
+
+    clear(&sr)
+    for i := 0; i < len(input.seeds)/2; i += 1 {
+        append(&sr, Seed{s = input.seeds[2*i], r = input.seeds[2*i+1]})
+    }
+    part2 = find_min(sr[:], input.conv)
+
+    return
 }
 
 parse :: proc(input: string) -> Input {
@@ -116,11 +112,11 @@ parse :: proc(input: string) -> Input {
 
     for i in 0..<len(result.conv) {
         lines := strings.split(sections[i+1], "\n")[1:]
-        result.conv[i] = make([][]int, len(lines))
+        result.conv[i] = make([][3]int, len(lines))
         for s, j in lines {
-            result.conv[i][j] = AOC.parse_ints(strings.split(s, " "))
+            copy(result.conv[i][j][:], AOC.parse_ints(strings.split(s, " ")))
         }
-        slice.sort_by(result.conv[i], proc(x, y: []int) -> bool {
+        slice.sort_by(result.conv[i], proc(x, y: [3]int) -> bool {
             return x[1] < y[1]
         })
     }
@@ -129,7 +125,10 @@ parse :: proc(input: string) -> Input {
 }
 
 main :: proc() {
+    start := time.now()
     input := AOC.get_input()
-    parsed := parse(input) 
-    fmt.printf("%d\n%d", solve(parsed))
+    parsed := parse(input)
+    p1, p2 := solve(parsed)
+    fmt.println(time.since(start))
+    fmt.printf("%d\n%d", p1, p2)
 }
