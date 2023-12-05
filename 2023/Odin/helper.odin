@@ -35,9 +35,16 @@ parse_int :: proc(s: string) -> int {
 }
 
 parse_ints :: proc(s: []string) -> []int {
-    result := make([]int, len(s))
-    for ss, i in s {
+    cnt := 0
+    for ss in s {
+        if ss != "" do cnt += 1
+    }
+    result := make([]int, cnt)
+    i := 0
+    for ss in s {
+        if ss == "" do continue
         result[i] = parse_int(ss)
+        i += 1
     }
     return result
 }
