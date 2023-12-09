@@ -48,3 +48,21 @@ parse_ints :: proc(s: []string) -> []int {
     }
     return result
 }
+
+bench :: proc(f: #type proc() -> (int, int), runs:=1) {
+    runs := runs
+    if len(os.args) == 2 {
+        runs = strconv.parse_int(os.args[1]) or_else panic("")
+    }
+    total : time.Duration
+    context.allocator = context.temp_allocator
+    p1, p2 : int
+    for t in 0..<runs {
+        start := time.now()
+        p1, p2 = f()
+        total += time.since(start)
+        free_all(context.allocator)
+    }
+    fmt.println(total / time.Duration(runs))
+    fmt.printf("%d\n%d\n", p1, p2)
+}
