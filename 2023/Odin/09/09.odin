@@ -12,6 +12,27 @@ import AOC ".."
 
 Input :: [][]int
 
+N :: 25
+dp : [N][N]int
+C :: proc(n, k: int) -> int {
+    if k == 0 || n == k do return 1
+    if dp[n][k] != -1 do return dp[n][k]
+    dp[n][k] = C(n-1, k-1) + C(n-1, k)
+    return dp[n][k]
+}
+
+flip :: proc(x: int) -> int {
+    return x % 2 == 0 ? 1 : -1
+}
+
+lagrange :: proc(a: []int) -> (p1, p2: int) {
+    for x, i in a {
+        p1 += x*C(len(a), i)*flip(len(a)-1-i)
+        p2 += x*C(len(a), i+1)*flip(i)
+    }
+    return
+}
+
 extrapolate_iter :: proc(a: []int) -> (p1, p2: int) {
     last := len(a)-1
     p1, p2 = a[last], a[0]
@@ -39,7 +60,7 @@ extrapolate :: proc(a: []int) -> (p1, p2: int) {
 
 solve :: proc(input: Input) -> (part1, part2: int) {
     for inp in input {
-        d1, d2 := extrapolate_iter(inp)
+        d1, d2 := lagrange(inp)
         part1 += d1
         part2 += d2
     }
@@ -55,9 +76,9 @@ parse :: proc(lines: []string) -> (result: Input) {
 }
 
 main :: proc() {
-    x := 0b10101
-    start := time.now()
-    p1, p2 := solve(parse(AOC.get_lines()))
-    fmt.println(time.since(start))
-    fmt.printf("%d\n%d\n", p1, p2)
+    AOC.bench(proc() -> (p1, p2: int) {
+        for i in 0..<N do for j in 0..<N do dp[i][j] = -1
+        p1, p2 = solve(parse(AOC.get_lines()))
+        return
+    })
 }

@@ -50,10 +50,9 @@ parse :: proc(lines: []string) -> []Game {
 }
 
 main :: proc() {
-    start := time.now()
-    input := AOC.get_lines()
-    games := parse(input) 
-    p1, p2 := part1(games), part2(games)
-    fmt.println(time.since(start))
-    fmt.printf("%d\n%d\n", p1, p2)
+    AOC.bench(proc() -> (p1, p2: int) {
+        games := parse(AOC.get_lines()) 
+        p1, p2 = part1(games), part2(games)
+        return
+    })
 }

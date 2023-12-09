@@ -16,8 +16,8 @@ Value :: struct {
     seen: bool
 }
 
-solve :: proc(lines: []string, values: [][]Value) -> (i64, i64) {
-    part1, part2 : i64 = 0, 0
+solve :: proc(lines: []string, values: [][]Value) -> (int, int) {
+    part1, part2 : int = 0, 0
 
     dx := [?]int{-1, 0, 1, -1, 1, -1, 0, 1}
     dy := [?]int{-1, -1, -1, 0, 0, 1, 1, 1}
@@ -25,7 +25,7 @@ solve :: proc(lines: []string, values: [][]Value) -> (i64, i64) {
     for line, i in lines {
         for c, j in line {
             if c != '.' && !unicode.is_digit(c) {
-                vs : [2]i64
+                vs : [2]int
                 vi := 0
                 for k in 0..<len(dx) {
                     ni := i + dy[k]
@@ -33,9 +33,9 @@ solve :: proc(lines: []string, values: [][]Value) -> (i64, i64) {
                     if nj < 0 || nj >= len(line) || ni < 0 || ni >= len(lines) do continue
                     if values[ni][nj].v == 0 || values[ni][nj-values[ni][nj].offset].seen do continue
 
-                    part1 += i64(values[ni][nj].v)
+                    part1 += int(values[ni][nj].v)
                     if c == '*' && vi != 2 {
-                        vs[vi] = i64(values[ni][nj].v)
+                        vs[vi] = int(values[ni][nj].v)
                         vi += 1
                     }
                     values[ni][nj-values[ni][nj].offset].seen = true
@@ -82,10 +82,10 @@ parse :: proc(lines: []string) -> [][]Value {
 }
 
 main :: proc() {
-    start := time.now()
-    input := AOC.get_lines()
-    values := parse(input) 
-    p1, p2 := solve(input, values)
-    fmt.println(time.since(start))
-    fmt.printf("%d\n%d\n", p1, p2)
+    AOC.bench(proc() -> (p1, p2: int) {
+        input := AOC.get_lines()
+        values := parse(input) 
+        p1, p2 = solve(input, values)
+        return
+    })
 }

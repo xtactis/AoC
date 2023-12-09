@@ -106,8 +106,8 @@ parse :: proc(lines: []string) -> (result: []Input) {
 }
 
 main :: proc() {
-    start := time.now()
-    p1, p2 := solve(parse(AOC.get_lines()))
-    fmt.println(time.since(start))
-    fmt.printf("%d\n%d\n", p1, p2)
+    AOC.bench(proc() -> (p1, p2: int) {
+        p1, p2 = solve(parse(AOC.get_lines()))
+        return
+    })
 }

@@ -14,11 +14,11 @@ Input :: struct {
     time, dist: int
 }
 
-quad :: proc(_a, _b, _c: int) -> (i64, i64) {
+quad :: proc(_a, _b, _c: int) -> (int, int) {
     a, b, c : f64 = f64(_a), f64(_b), f64(_c)
     r1 := (-b + math.sqrt(b*b - 4*a*c)) / (2 * a)
     r2 := (-b - math.sqrt(b*b - 4*a*c)) / (2 * a)
-    return i64(r1), i64(r2)
+    return int(r1), int(r2)
 }
 
 ndigits :: proc(x: int) -> (cnt: int) {
@@ -32,7 +32,7 @@ pow :: proc(x: int, e: int) -> int {
     return x*pow(x, e-1)
 }
 
-solve :: proc(input: []Input) -> (part1, part2: i64) {
+solve :: proc(input: []Input) -> (part1, part2: int) {
     part1 = 1
     for i in input {
         r1, r2 := quad(-1, i.time, -i.dist)
@@ -64,8 +64,8 @@ parse :: proc(lines: []string) -> (result: []Input) {
 }
 
 main :: proc() {
-    start := time.now()
-    p1, p2 := solve(parse(AOC.get_lines()))
-    fmt.println(time.since(start))
-    fmt.printf("%d\n%d\n", p1, p2)
+    AOC.bench(proc() -> (p1, p2: int) {
+        p1, p2 = solve(parse(AOC.get_lines()))
+        return
+    })
 }

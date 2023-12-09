@@ -52,10 +52,8 @@ parse :: proc(lines: []string) -> []Card {
 }
 
 main :: proc() {
-    start := time.now()
-    input := AOC.get_lines()
-    cards := parse(input) 
-    p1, p2 := solve(cards)
-    fmt.println(time.since(start))
-    fmt.printf("%d\n%d\n", p1, p2)
+    AOC.bench(proc() -> (p1, p2: int) {
+        p1, p2 = solve(parse(AOC.get_lines()))
+        return
+    })
 }
