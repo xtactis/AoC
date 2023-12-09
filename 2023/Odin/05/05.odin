@@ -130,5 +130,5 @@ main :: proc() {
     parsed := parse(input)
     p1, p2 := solve(parsed)
     fmt.println(time.since(start))
-    fmt.printf("%d\n%d", p1, p2)
+    fmt.printf("%d\n%d\n", p1, p2)
 }

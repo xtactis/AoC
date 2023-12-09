@@ -3,11 +3,13 @@ package Day01
 import "core:fmt"
 import "core:math"
 import "core:strings"
+import "core:time"
 import "core:unicode"
 
 import AOC ".."
 
 main :: proc() {
+    start := time.now()
     lines := AOC.get_lines()
 
     part1 := 0
@@ -43,6 +45,7 @@ main :: proc() {
         }
         part2 += first*10 + last
     }
+    fmt.println(time.since(start))
     fmt.printf("%d\n", part1)
     fmt.printf("%d\n", part2)
 }

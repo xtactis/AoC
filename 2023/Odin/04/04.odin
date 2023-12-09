@@ -5,6 +5,7 @@ import "core:math"
 import "core:slice"
 import "core:strings"
 import "core:strconv"
+import "core:time"
 import "core:unicode"
 
 import AOC ".."
@@ -14,20 +15,19 @@ Card :: struct {
     mine: []int,
 }
 
-solve :: proc(cards: []Card) -> (int, int) {
-    part1, part2 := 0, 0
+solve :: proc(cards: []Card) -> (part1, part2: int) {
     p2cards := make([]int, len(cards))
     for card, id in cards {
         using card
         part2 += 1 + p2cards[id]
-        cnt : uint = 0
+        cnt := 0
         for n in mine {
             if slice.contains(winning, n) {
                 cnt += 1
-                p2cards[id+int(cnt)] += 1 + p2cards[id]
+                p2cards[id+cnt] += 1 + p2cards[id]
             }
         }
-        part1 += (1 >> cnt) / 2
+        part1 += (1 << uint(cnt)) / 2
     }
     return part1, part2
 }
@@ -52,7 +52,10 @@ parse :: proc(lines: []string) -> []Card {
 }
 
 main :: proc() {
+    start := time.now()
     input := AOC.get_lines()
     cards := parse(input) 
-    fmt.printf("%d\n%d", solve(cards))
+    p1, p2 := solve(cards)
+    fmt.println(time.since(start))
+    fmt.printf("%d\n%d\n", p1, p2)
 }

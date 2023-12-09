@@ -5,6 +5,7 @@ import "core:math"
 import "core:slice"
 import "core:strings"
 import "core:strconv"
+import "core:time"
 import "core:unicode"
 
 import AOC ".."
@@ -81,7 +82,10 @@ parse :: proc(lines: []string) -> [][]Value {
 }
 
 main :: proc() {
+    start := time.now()
     input := AOC.get_lines()
     values := parse(input) 
-    fmt.printf("%d\n%d", solve(input, values))
+    p1, p2 := solve(input, values)
+    fmt.println(time.since(start))
+    fmt.printf("%d\n%d\n", p1, p2)
 }

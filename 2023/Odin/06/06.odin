@@ -67,5 +67,5 @@ main :: proc() {
     start := time.now()
     p1, p2 := solve(parse(AOC.get_lines()))
     fmt.println(time.since(start))
-    fmt.printf("%d\n%d", p1, p2)
+    fmt.printf("%d\n%d\n", p1, p2)
 }

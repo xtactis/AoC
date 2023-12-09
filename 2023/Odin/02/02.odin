@@ -6,6 +6,7 @@ import "core:slice"
 import "core:strings"
 import "core:strconv"
 import "core:text/match"
+import "core:time"
 
 import AOC ".."
 
@@ -49,8 +50,10 @@ parse :: proc(lines: []string) -> []Game {
 }
 
 main :: proc() {
+    start := time.now()
     input := AOC.get_lines()
     games := parse(input) 
-    fmt.printf("%d\n", part1(games))
-    fmt.printf("%d\n", part2(games))
+    p1, p2 := part1(games), part2(games)
+    fmt.println(time.since(start))
+    fmt.printf("%d\n%d\n", p1, p2)
 }
