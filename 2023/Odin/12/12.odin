@@ -1,4 +1,4 @@
-package Day10
+package Day12
 
 import "core:container/queue"
 import "core:fmt"
@@ -7,6 +7,7 @@ import "core:os"
 import "core:slice"
 import "core:strings"
 import "core:strconv"
+import "core:thread"
 import "core:time"
 import "core:unicode"
 
@@ -20,7 +21,9 @@ Input :: struct {
 State :: struct {
     rec_index, hint_index, cur: u8
 }
+@(thread_local)
 dp : map[State]int
+
 count :: proc(input: Input, rec_index, hint_index, cur: int) -> int {
     using input
     if rec_index == len(record) do return 1 if (hint_index == len(hint) && cur == 0) || (hint_index == len(hint)-1 && cur == hint[hint_index]) else 0
@@ -58,18 +61,47 @@ count :: proc(input: Input, rec_index, hint_index, cur: int) -> int {
 
 solve :: proc(input: []Input) -> (part1, part2: int) {
     dp = make(map[State]int)
+    h := make([dynamic]int, 0, 75)
+    s := make([dynamic]u8, 0, 75)
     for line in input {
         clear(&dp)
         part1 += count(line, 0, 0, 0)
-        clear(&dp)
-        h := make([]int, len(line.hint)*5)
-        for t, i in line.hint {
-            for k in 0..<5 {
-                h[i + k * len(line.hint)] = t
+        clear(&s)
+        clear(&h)
+        for j in 0..<5 {
+            for i in 0..<len(line.record) {
+                append(&s, line.record[i])
+            }
+            if j != 4 do append(&s, '?')
+            for i in 0..<len(line.hint) {
+                append(&h, line.hint[i])
             }
         }
-        part2 += count(Input {record = strings.join([]string{line.record, line.record, line.record, line.record, line.record}, "?"), hint = h}, 0, 0, 0)
+        clear(&dp)
+        part2 += count(Input {record = string(s[:]), hint = h[:]}, 0, 0, 0)
     }
+    return
+}
+
+solve_para :: proc(input: []Input) -> (part1, part2: int) {
+    ts := make([]^thread.Thread, 8)
+    p1s := make([]int, len(ts))
+    p2s := make([]int, len(ts))
+    chunk_len := len(input) / len(ts)
+
+    runner :: proc(input: []Input, part1, part2: ^int) {
+        part1^, part2^ = solve(input)
+    }
+
+    for &t, i in ts {
+        t = thread.create_and_start_with_poly_data3(input[i * chunk_len : (i+1) * chunk_len], &p1s[i], &p2s[i], runner)
+    }
+
+    thread.join_multiple(..ts)
+
+    part1 = math.sum(p1s)
+    part2 = math.sum(p2s)
+
     return
 }
 
@@ -87,7 +119,7 @@ parse :: proc(lines: []string) -> (result: []Input) {
 
 main :: proc() {
     AOC.bench(proc() -> (p1, p2: int) {
-        p1, p2 = solve(parse(AOC.get_lines()))
+        p1, p2 = solve_para(parse(AOC.get_lines()))
         return
     })
 }
