@@ -13,67 +13,54 @@ import "core:unicode"
 
 import AOC ".."
 
-Input :: []string
+Row :: bit_set[0..<32;u32]
 
-find_vertical_reflect :: proc(pattern: Input, p2: bool=false) -> (res: int, ok: bool) {
-    for reflection_point in 1..<len(pattern[0])-0 {
-        cp2 := p2
-        found := true
-        current: for row in pattern {
-            for i in 0..<reflection_point {
-                j := 2*reflection_point-i-1
-                if j >= len(row) do continue
-                if row[i] != row[j]  {
-                    if cp2 {
-                        cp2 = false
-                        continue
-                    }
-                    found = false
-                    break current
-                }
-            }
-        }
-        if p2 && cp2 do continue
-        if found do return reflection_point, true
-    }
-    return 0, false
+Input :: struct {
+    rows: []Row,
+    cols: []Row,
 }
 
-find_horizontal_reflect :: proc(pattern: Input, p2: bool = false) -> (res: int, ok: bool) {
-    for reflection_point in 1..<len(pattern)-0 {
-        found := true
-        cp2 := p2
-        current: for i in 0..<reflection_point {
+find_reflect :: proc(pattern: []Row, p2: bool=false) -> (res: int, ok: bool) {
+    outer: for reflection_point in 1..<len(pattern) {
+        diff := 0
+        for i in 0..<reflection_point {
             j := 2*reflection_point-i-1
             if j >= len(pattern) do continue
-            for k in 0..<len(pattern[i]) {
-                if pattern[i][k] != pattern[j][k] {
-                    if cp2 {
-                        cp2 = false
-                        continue
-                    }
-                    found = false
-                    break current
-                }
-            }
+            diff += card(pattern[i] ~ pattern[j])
+            if diff == 0 do continue
+            if diff > 1 || !p2 do continue outer
         }
-        if p2 && cp2 do continue
-        if found do return reflection_point*100, true
+        if (p2 && diff == 1) || (!p2 && diff == 0) do return reflection_point, true
     }
     return 0, false
 }
 
-solve :: proc(input: []Input) -> (part1, part2: int) {
-    for pattern in input {
-        part1 += find_vertical_reflect(pattern) or_else (find_horizontal_reflect(pattern) or_else 0)
-        part2 += find_horizontal_reflect(pattern, true) or_else (find_vertical_reflect(pattern, true) or_else 0)
+solve :: proc(input: [][]string) -> (part1, part2: int) {
+    rows := make([dynamic]Row, 0, 32)
+    cols := make([dynamic]Row, 0, 32)
+    for spattern in input {
+        clear(&rows)
+        clear(&cols)
+        for _ in spattern[0] do append(&cols, Row{})
+        for line, i in spattern {
+            append(&rows, Row{})
+            for c, j in line {
+                if c == '#' {
+                    rows[i] += {j}
+                    cols[j] += {i}
+                }
+            }
+        }
+        
+        part1 += find_reflect(cols[:]) or_else (find_reflect(rows[:]) or_else 0)*100
+        part2 += find_reflect(cols[:], true) or_else (find_reflect(rows[:], true) or_else 0)*100
     }
     return
 }
 
-parse :: proc(lines: string) -> (result: []Input) {
+parse :: proc(lines: string) -> (result: [][]string) {
     tmp := strings.split(lines, "\n\n")
-    result = make([]Input, len(tmp))
+    result = make([][]string, len(tmp))
     for t, i in tmp {
         result[i] = strings.split_lines(t)
     }
