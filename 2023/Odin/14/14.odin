@@ -15,21 +15,14 @@ import AOC ".."
 
 Input :: [][]u8
 
-calculate_weight :: proc(input: Input) -> (res: int){
-    for line, i in input {
-        for c, j in line {
-            if c != 'O' do continue
-            res += len(input) - i
-        }
-    }
-    return
-}
-
 solve :: proc(input: Input) -> (part1, part2: int) {
-    cache := make(map[string]int)
-    rev_cache := make([dynamic]string, 0, 128)
+    Key :: [2]int
+    cache := make(map[Key]int)
+    rev_cache := make([dynamic]int, 0, 128)
     N :: 1_000_000_000
     for cycle in 0..<N {
+        key : Key
+        load := 0
         for direction in 0..<4 {
             if direction < 2 {
                 for line, i in input {
@@ -42,6 +35,8 @@ solve :: proc(input: Input) -> (part1, part2: int) {
                             for k >= 0 && input[k][j] == '.' do k -= 1
                             k += 1
                             input[k][j], input[i][j] = input[i][j], input[k][j]
+                            key[0] += len(input)-k
+                            key[1] += j
                         case 1:
                             k = j-1
                             for k >= 0 && input[i][k] == '.' do k -= 1
@@ -66,20 +61,19 @@ solve :: proc(input: Input) -> (part1, part2: int) {
                             for k < len(input[0]) && input[i][k] == '.' do k += 1
                             k -= 1
                             input[i][k], input[i][j] = input[i][j], input[i][k]
+                            load += len(input)-i
                         }
                     }
                 }
             }
-            if cycle == 0 && direction == 0 do part1 = calculate_weight(input)
         }
-        key := strings.join(transmute([]string)input, "\n")
+        if cycle == 0 do part1 = key[0]
         if c, exists := cache[key]; exists {
-            final := rev_cache[c-1 + ((N - cycle) % (cycle-c))]
-            part2 = calculate_weight(transmute([][]u8)strings.split_lines(final))
+            part2 = rev_cache[c-1 + ((N - cycle) % (cycle-c))]
             return
         }
         cache[key] = cycle
-        append(&rev_cache, key)
+        append(&rev_cache, load)
     }
     return
 }
