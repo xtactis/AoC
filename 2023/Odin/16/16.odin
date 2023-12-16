@@ -13,20 +13,74 @@ import "core:unicode"
 
 import AOC ".."
 
+PosWithoutDir :: struct {
+    x, y: i8
+}
+
 Pos :: struct {
-    x, y, direction: u8
+    x, y: i8,
+    direction: i8
 }
 
 Input :: []string
+pos_set :: map[PosWithoutDir]struct{}
+posdir_set :: map[Pos]struct{} 
 
-move :: proc(p: Pos, dir: u8) -> Pos {
+move :: proc(p: Pos, dir: i8) -> Pos {
     switch dir {
     case 0: return Pos{p.x+1, p.y, dir}
     case 1: return Pos{p.x, p.y+1, dir}
     case 2: return Pos{p.x-1, p.y, dir}
     case 3: return Pos{p.x, p.y-1, dir}
     }
-    panic("AAAAAAA")
+    fmt.panicf("AAAAAAA", p, dir)
+}
+
+merge :: proc (m1: ^pos_set, m2: pos_set) {
+    for k, _ in m2 {
+        m1^[k] = {}
+    }
+    return
+}
+
+dp := make(map[Pos]pos_set)
+seen := make(posdir_set)
+dfs :: proc(input: Input, c: Pos) -> (result: pos_set) {
+    if c.y < 0 || c.x < 0 || int(c.y) >= len(input) || int(c.x) >= len(input[0]) || c in seen do return
+    if s, exists := dp[c]; exists {
+        return s
+    }
+
+    seen[c] = {}
+    result[{c.x, c.y}] = {}
+
+    switch input[c.y][c.x] {
+    case '.':
+        merge(&result, dfs(input, move(c, c.direction)))
+    case '\\': 
+        if c.direction % 2 == 0 do merge(&result, dfs(input, move(c, (c.direction+1)&3)))
+        else                    do merge(&result, dfs(input, move(c, (c.direction-1)&3)))
+    case '/': 
+        if c.direction % 2 == 1 do merge(&result, dfs(input, move(c, (c.direction+1)&3)))
+        else                    do merge(&result, dfs(input, move(c, (c.direction-1)&3)))
+    case '-':
+        if c.direction % 2 == 0 {
+            merge(&result, dfs(input, move(c, c.direction)))
+        } else {
+            merge(&result, dfs(input, move(c, (c.direction+1)&3)))
+            merge(&result, dfs(input, move(c, (c.direction-1)&3)))
+        }
+    case '|':
+        if c.direction % 2 == 1 {
+            merge(&result, dfs(input, move(c, c.direction)))
+        } else {
+            merge(&result, dfs(input, move(c, (c.direction+1)&3)))
+            merge(&result, dfs(input, move(c, (c.direction-1)&3)))
+        }
+    }
+    delete_key(&seen, c)
+    dp[c] = result
+    return
 }
 
 solve_one :: proc(input: Input, start: Pos) -> (res: int) {
@@ -47,25 +101,25 @@ solve_one :: proc(input: Input, start: Pos) -> (res: int) {
         switch input[c.y][c.x] {
         case '.': queue.push(&q, move(c, c.direction))
         case '\\': 
-            if c.direction % 2 == 0 do queue.push(&q, move(c, (c.direction+1)%4))
-            else                    do queue.push(&q, move(c, (c.direction-1)%4))
+            if c.direction % 2 == 0 do queue.push(&q, move(c, (c.direction+1)&3))
+            else                    do queue.push(&q, move(c, (c.direction-1)&3))
         case '/': 
-            if c.direction % 2 == 1 do queue.push(&q, move(c, (c.direction+1)%4))
-            else                    do queue.push(&q, move(c, (c.direction-1)%4))
+            if c.direction % 2 == 1 do queue.push(&q, move(c, (c.direction+1)&3))
+            else                    do queue.push(&q, move(c, (c.direction-1)&3))
         case '-':
             if c.direction % 2 == 0 {
                 queue.push(&q, move(c, c.direction))
                 continue
             }
-            queue.push(&q, move(c, (c.direction+1)%4))
-            queue.push(&q, move(c, (c.direction-1)%4))
+            queue.push(&q, move(c, (c.direction+1)&3))
+            queue.push(&q, move(c, (c.direction-1)&3))
         case '|':
             if c.direction % 2 == 1 {
                 queue.push(&q, move(c, c.direction))
                 continue
             }
-            queue.push(&q, move(c, (c.direction+1)%4))
-            queue.push(&q, move(c, (c.direction-1)%4))
+            queue.push(&q, move(c, (c.direction+1)&3))
+            queue.push(&q, move(c, (c.direction-1)&3))
         }
     }
     for line, y in been {
@@ -77,16 +131,17 @@ solve_one :: proc(input: Input, start: Pos) -> (res: int) {
 }
 
 solve :: proc(input: Input) -> (part1, part2: int) {
-    part1 = solve_one(input, {0, 0, 0})
+    part1 = len(dfs(input, {0, 0, 0}))
     part2 = part1
     for i in 0..<len(input) {
-        part2 = max(part2, solve_one(input, {0, u8(i), 0}))
-        part2 = max(part2, solve_one(input, {u8(len(input[0])-1), u8(i), 2}))
+        part2 = max(part2, len(dfs(input, {0, i8(i), 0})))
+        part2 = max(part2, len(dfs(input, {i8(len(input[0])-1), i8(i), 2})))
     }
     for i in 0..<len(input[0]) {
-        part2 = max(part2, solve_one(input, {u8(i), 0, 1}))
-        part2 = max(part2, solve_one(input, {u8(i), u8(len(input)-1), 3}))
+        part2 = max(part2, len(dfs(input, {i8(i), 0, 1})))
+        part2 = max(part2, len(dfs(input, {i8(i), i8(len(input)-1), 3})))
     }
+    
     return
 }
 
