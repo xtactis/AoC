@@ -30,11 +30,11 @@ get_lines :: proc(loc := #caller_location) -> []string {
     return strings.split_lines(get_input(loc))
 }
 
-parse_int :: proc(s: string) -> int {
-    return strconv.parse_int(s) or_else fmt.panicf("couldn't parse int from %s", s)
+parse_int :: proc(s: string, base: int = 0) -> int {
+    return strconv.parse_int(s, base) or_else fmt.panicf("couldn't parse int from %s", s)
 }
 
-parse_ints :: proc(s: []string) -> []int {
+parse_ints :: proc(s: []string, base: int = 0) -> []int {
     cnt := 0
     for ss in s {
         if ss != "" do cnt += 1
@@ -43,7 +43,7 @@ parse_ints :: proc(s: []string) -> []int {
     i := 0
     for ss in s {
         if ss == "" do continue
-        result[i] = parse_int(ss)
+        result[i] = parse_int(ss, base)
         i += 1
     }
     return result
