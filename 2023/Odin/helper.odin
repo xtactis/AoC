@@ -64,7 +64,6 @@ bench :: proc(f: #type proc() -> (int, int), runs:=1) {
     }
     total : time.Duration
     total_cycles : u64
-    context.allocator = context.temp_allocator
     p1, p2 : int
     for t in 0..<runs {
         start := time.now()
