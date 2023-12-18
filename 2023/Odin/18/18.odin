@@ -19,57 +19,44 @@ Pos :: [2]int
 Command :: struct {
     dir: u8,
     len: int,
-    hex: string
 }
-Input :: []Command
-
+Input :: #soa[dynamic][2]Command
 
 solve :: proc(input: Input) -> (part1, part2: int) {
-    grid : map[Pos]struct{}
-    pos := Pos{0, 0}
-    d : map[u8]Pos = {
-        'U' = {0, -1},
-        'R' = {1, 0},
-        'D' = {0, 1},
-        'L' = {-1, 0}
-    }
-    miny, maxy, minx, maxx := 0, 0, 0, 0
-    for cmd in input {
-        using cmd
-        for i in 0..<len {
-            pos += d[dir]
-            grid[pos] = {}
-            miny = min(miny, pos.y)
-            maxy = max(maxy, pos.y)
-            minx = min(minx, pos.x)
-            maxx = max(maxx, pos.x)
+    calc :: proc(cmds: []Command) -> int {
+        d : map[u8]Pos = {
+            'U' = {0, -1},
+            'R' = {1, 0},
+            'D' = {0, 1},
+            'L' = {-1, 0}
         }
+        pos := Pos{0, 0}
+        area := 0
+        b := 0
+        for cmd in cmds {
+            using cmd
+            prev := pos
+            pos += len*d[dir]
+            if dir == 'L' || dir == 'R' {
+                area += (prev.x-pos.x) * pos.y
+            }
+            b += len
+        }
+        return abs(area)+1+b/2
     }
 
-    fmt.println(miny, maxy, minx, maxx)
-    for y in (miny+1)..<maxy {
-        hits := 0
-        for x in minx..<maxx {
-            if ({x, y}) in grid && ({x+1, y}) not_in grid {
-                hits += 1
-                continue
-            }
-            if hits % 2 == 1 && ({x, y}) not_in grid {
-                part1 += 1
-            }
-        }
-    }
-    fmt.println(part1)
+    a, b := soa_unzip(input[:])
+    part1 = calc(a)
+    part2 = calc(b)
 
-    part1 += len(grid)
     return
 }
 
 parse :: proc(lines: []string) -> (result: Input) {
-    result = make(Input, len(lines))
     for line, i in lines {
         t := strings.split(line, " ")
-        result[i] = Command{dir = t[0][0], len = AOC.parse_int(t[1]), hex = t[2]}
+        i2d := [4]u8{'R', 'D', 'L', 'U'}
+        append_soa(&result, [2]Command{{dir = t[0][0], len = AOC.parse_int(t[1])}, {dir = i2d[t[2][7]-'0'], len = AOC.parse_int(t[2][2:7], 16)}})
         
     }
     return result
