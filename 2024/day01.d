@@ -1,15 +1,17 @@
-import std.stdio, std.array, std.algorithm, std.conv, std.range, std.math;
+import std.file, std.stdio, std.array, std.algorithm, std.conv, std.range, std.math;
+
+auto readLines(string file) {
+    return readText(file).split("\n").filter!(l => l.length != 0);
+}
 
 void main() {
-    string line;
-    int[] a;
-    int[] b;
+    int[] a, b;
     int[int] count;
-    while ((line = readln()) !is null) {
-        int[] ns = line.split.map!(a => parse!int(a)).array();
+    foreach (line; readLines("input/01.in")) {
+        auto ns = line.split.map!(a => parse!int(a));
         a ~= ns[0];
         b ~= ns[1];
-        count[ns[1]] += 1;
+        count[b.back()] += 1;
     }
     int part1 = zip(a.sort(), b.sort()).map!(d => abs(d[0]-d[1])).sum();
     writeln("part 1: ", part1);
