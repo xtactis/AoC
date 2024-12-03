@@ -1,11 +1,6 @@
 import std.file, std.stdio, std.array, std.algorithm, std.conv, std.range, std.math, std.regex;
 
-auto readLines(string file) {
-    return readText(file).split("\n").filter!(l => l.length != 0);
-}
-
 int solvePart1(string line) {
-    int ret = 0;
     auto r = ctRegex!(`mul\(([0-9]+),([0-9]+)\)`, "s");
     return matchAll(line, r).fold!((a, c) => a + to!int(c[1])*to!int(c[2]))(0);
 }
