@@ -6,27 +6,16 @@ auto readLines(string file) {
 
 int solvePart1(string line) {
     int ret = 0;
-    auto r = ctRegex!(`mul\(([0-9]+),([0-9]+)\)`);
-    foreach (c; matchAll(line, r)) {
-        ret += to!int(c[1])*to!int(c[2]);
-    }
-    return ret;
+    auto r = ctRegex!(`mul\(([0-9]+),([0-9]+)\)`, "s");
+    return matchAll(line, r).fold!((a, c) => a + to!int(c[1])*to!int(c[2]))(0);
 }
 
 void main() {
-    int part1 = 0;
-    int part2 = 0;
     string line = "do()"~readText("input/03.in")~"don't()";
-    part1 += solvePart1(line);
+    int part1 = solvePart1(line);
 
-    while (!line.empty) {
-        long firstDo = countUntil(line, "do()");
-        if (firstDo == -1) break;
-        line = line[firstDo..$];
-        long end = countUntil(line, "don't()")+7;
-        part2 += solvePart1(line[0..end]);
-        line = line[end..$];
-    }
+    auto r = ctRegex!(`do\(\)(.*?)don't\(\)`, "s");
+    int part2 = matchAll(line, r).fold!((a, c) => a + solvePart1(c[1]))(0);
 
     writeln("part 1: ", part1);
     writeln("part 2: ", part2);
