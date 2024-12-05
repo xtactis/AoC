@@ -35,21 +35,17 @@ void main() {
             }
             if (m.length - i < 3 || m[0].length - j < 3) continue;
             foreach (t; p2target) {
-                bool found = true;
                 for (int k = 0; k < 3; ++k) {
                     for (int l = 0; l < 3; ++l) {
                         if (t[k][l] == '.') continue;
                         if (t[k][l] != m[i+k][j+l]) {
-                            found = false;
                             goto afterSearch;
                         }
                     }
                 }
+                part2 += 1;
+                break;
 afterSearch:
-                if (found) {
-                    part2 += 1;
-                    break;
-                }
             }
         }
     }
