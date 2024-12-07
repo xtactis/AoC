@@ -15,11 +15,11 @@ long cat(long a, long b) {
     return a*d + b;
 }
 
-bool possible(bool canCat = false)(long target, long[] l, long sum = 0, int i = 0) {
+bool possible(bool canCat = false)(long target, long[] l, long sum, int i) {
     if (sum > target) return false;
     if (i == l.length) return sum == target;
     return possible!canCat(target, l, sum + l[i], i + 1)
-        || possible!canCat(target, l, sum == 0 ? l[i] : sum * l[i], i + 1)
+        || possible!canCat(target, l, sum * l[i], i + 1)
         || (canCat && possible!canCat(target, l, cat(sum, l[i]), i+1));
 }
 
@@ -32,9 +32,9 @@ void main() {
         long target = to!long(ss[0]);
         long[] l = ss[1].split(" ").map!(to!long).array;
 
-        if (possible(target, l)) {
+        if (possible(target, l, l[0], 1)) {
             part1 += target;
-        } else if (possible!true(target, l)) {
+        } else if (possible!true(target, l, l[0], 1)) {
             part2 += target;
         }
     }
