@@ -1,40 +1,38 @@
-
 import std.file, std.stdio, std.array, std.algorithm, std.conv, std.range, std.math;
+import core.memory;
 
-auto readLines(string file) {
-    return readText(file).split("\n").filter!(l => l.length != 0);
+auto readLines(string file)() {
+    return import(file).split("\n").filter!(l => l.length != 0);
 }
 
-long cat(long a, long b) {
-    if (a == 0) return b;
-
-    long d = 1;
-    while (d <= b) {
-        d *= 10;
+bool possible2(bool canCat = false)(long target, const long[] l, ulong i) {
+    if (i == 0) return target == l[0];
+    if (target < l[i]) return false;
+    bool dog(long a, long b) {
+        long d = 1;
+        while (d <= b) {
+            d *= 10;
+        }
+        return a % d == b && possible2!canCat(a/d, l, i-1);
     }
-    return a*d + b;
-}
-
-bool possible(bool canCat = false)(long target, long[] l, long sum, int i) {
-    if (sum > target) return false;
-    if (i == l.length) return sum == target;
-    return possible!canCat(target, l, sum + l[i], i + 1)
-        || possible!canCat(target, l, sum * l[i], i + 1)
-        || (canCat && possible!canCat(target, l, cat(sum, l[i]), i+1));
+    return possible2!canCat(target-l[i], l, i-1)
+        || (target%l[i] == 0 && possible2!canCat(target/l[i], l, i-1))
+        || (canCat && dog(target, l[i]));
 }
 
 void main() {
+    GC.disable;
     long part1 = 0;
     long part2 = 0;
 
-    foreach(line; readLines("input/07.in")) {
+    foreach (line; readLines!"input/07.in") {
         auto ss = line.split(": ");
         long target = to!long(ss[0]);
         long[] l = ss[1].split(" ").map!(to!long).array;
 
-        if (possible(target, l, l[0], 1)) {
+        if (possible2(target, l, l.length-1)) {
             part1 += target;
-        } else if (possible!true(target, l, l[0], 1)) {
+        } else if (possible2!true(target, l, l.length-1)) {
             part2 += target;
         }
     }
