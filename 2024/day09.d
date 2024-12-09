@@ -5,6 +5,15 @@ auto readLines(string file)() {
     return import(file).split("\n").filter!(l => l.length != 0);
 }
 
+ulong checksum(bool earlyStop=false)(const ref int[] a) {
+    ulong ret = 0;
+    foreach (i, x; a) {
+        if (x == -1) if (earlyStop) break; else continue;
+        ret += i*x;
+    }
+    return ret;
+}
+
 void main() {
     GC.disable;
 
@@ -28,10 +37,7 @@ void main() {
         if (i <= front) break;
         swap(a[front], a[i]);
     }
-    foreach (i, x; a) {
-        if (x == -1) break;
-        part1 += i*x;
-    }
+    part1 = checksum!true(a);
 
     ulong lastId = -1;
     for (ulong i = b.length-1; i > 0; --i) {
@@ -45,13 +51,13 @@ void main() {
         while (frontLength < curLength) {
             front += frontLength;
             frontLength = 0;
-            while (b[front] != -1 && ++front <= i-curLength) {}
+            while (b[front] != -1 && front++ <= i-curLength) {}
             if (front > i-curLength) break;
             while (front+frontLength < b.length && b[front+frontLength] == -1) {
                 ++frontLength;
             }
         }
-        if (front < i-curLength) {
+        if (front <= i-curLength) {
             int value = b[i];
             for (ulong j = 0; j < curLength; ++j) {
                 b[front+j] = value;
@@ -60,10 +66,7 @@ void main() {
         }
         i -= curLength-1;
     }
-    foreach (i, x; b) {
-        if (x == -1) continue;
-        part2 += i*x;
-    }
+    part2 = checksum(b);
 
     writeln("part 1: ", part1);
     writeln("part 2: ", part2);
