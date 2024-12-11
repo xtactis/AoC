@@ -15,16 +15,15 @@ int countDigits(long x) {
     return c;
 }
 
-long[long[2]] dp;
+long[long][100] dp;
 long rec(long x, long i) {
     if (i == 0) return 1;
-    long[2] cur = [x, i];
-    if (cur in dp) return dp[cur];
+    if (x in dp[i]) return dp[i][x];
     int dig = countDigits(x);
     long d = 10 ^^ (dig / 2);
-    return dp[cur] = x == 0 ? rec(1, i-1)
-                   : dig % 2 == 0 ? rec(x / d, i-1) + rec(x % d, i-1)
-                   : rec(x * 2024, i-1);
+    return dp[i][x] = x == 0       ? rec(1, i-1)
+                    : dig % 2 == 0 ? rec(x / d, i-1) + rec(x % d, i-1)
+                    :                rec(x * 2024, i-1);
 }
 
 void main() {
@@ -33,7 +32,7 @@ void main() {
     long part1 = 0;
     long part2 = 0;
 
-    long[] a = import("input/11.in").split.map!(to!long).array;
+    auto a = import("input/11.in").split.map!(to!long);
 
     foreach (long x; a) {
         part1 += rec(x, 25);
@@ -43,4 +42,3 @@ void main() {
     writeln("part 1: ", part1);
     writeln("part 2: ", part2);
 }
-
