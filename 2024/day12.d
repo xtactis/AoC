@@ -107,11 +107,10 @@ void main() {
                         return m[y][x];
                     }
                     char me = m[y][x];
-                    char left = get(y+dy[k-1], x+dx[k-1]);
-                    char topLeft = get(y+dy[k], x+dx[k]);
-                    char top = get(y+dy[k+1], x+dx[k+1]);
-                    sides += me == topLeft ? me != top && me != left
-                           :                 (me == top) == (me == left);
+                    bool left = me == get(y+dy[k-1], x+dx[k-1]);
+                    bool topLeft = me == get(y+dy[k], x+dx[k]);
+                    bool top = me == get(y+dy[k+1], x+dx[k+1]);
+                    sides += !topLeft && top && left || !top && !left;
                 }
             }
             part1 += area*perimiter;
