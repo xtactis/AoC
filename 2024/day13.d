@@ -8,9 +8,9 @@ auto readLines(string file)() {
 }
 
 struct Input {
-    int ax, ay;
-    int bx, by;
-    int px, py;
+    long ax, ay;
+    long bx, by;
+    long px, py;
 };
 
 const int costA = 3;
@@ -43,14 +43,16 @@ Input parse(string[] lines) {
     return ret;
 }
 
-long[Tuple!(long, long)] dp;
-long rec(long cx, long cy, const ref Input input) {
-    if (cx > input.px || cy > input.py) return 100000000000000;
-    if (cx == input.px && cy == input.py) return 0; // hell yea
-    auto cur = tuple(cx, cy);
-    if (cur in dp) return dp[cur];
-    return dp[cur] = min(costA+rec(cx+input.ax, cy+input.ay, input),
-                         costB+rec(cx+input.bx, cy+input.by, input));
+Tuple!(long, long) solve(const ref Input input) {
+    long Kd = input.px*input.by-input.bx*input.py;
+    long KD = input.ax*input.by-input.ay*input.bx;
+    if (Kd % KD != 0) return tuple(0L, 0L);
+    long K = Kd / KD;
+    long Ld = input.py-input.ay*K;
+    long LD = input.by;
+    if (Ld % LD != 0) return tuple(0L, 0L);
+    long L = Ld / LD;
+    return tuple(K, L);
 }
 
 void main() {
@@ -62,18 +64,15 @@ void main() {
     foreach (chunk; import("input/13.in").split("\n\n")) {
         Input input = chunk.split("\n").filter!(l => l.length != 0).array.parse;
 
-        dp.clear();
-        long cost = rec(0, 0, input);
-        if (cost < 100000000000000) {
-            part1 += cost;
+        auto c = solve(input);
+        if (c[0] <= 100 && c[1] <= 100) {
+            part1 += costA*c[0]+costB*c[1];
         }
-        input.px += 10000000000000; 
-        input.py += 10000000000000; 
-        dp.clear();
-        cost = rec(0, 0, input);
-        if (cost < 100000000000000) {
-            part2 += cost;
-        }
+        
+        input.px += 10000000000000;
+        input.py += 10000000000000;
+        c = solve(input);
+        part2 += costA*c[0]+costB*c[1];
     }
 
     writeln("part 1: ", part1);
