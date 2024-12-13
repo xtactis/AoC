@@ -7,40 +7,20 @@ auto readLines(string file)() {
     return import(file).split("\n").filter!(l => l.length != 0);
 }
 
-struct Input {
-    long ax, ay;
-    long bx, by;
-    long px, py;
+union Input {
+    long[6] arr;
+    struct {
+        long ax, ay;
+        long bx, by;
+        long px, py;
+    };
 };
 
 const int costA = 3;
 const int costB = 1;
 
-Input parse(string[] lines) {
-    assert(lines.length == 3);
-
-    Input ret;
-
-    auto r = ctRegex!(`Button .: X\+(\d+), Y\+(\d+)`);
-    {
-        auto c = matchFirst(lines[0], r);
-        assert(c);
-        ret.ax = c[1].to!int;
-        ret.ay = c[2].to!int;
-    }
-    {
-        auto c = matchFirst(lines[1], r);
-        assert(c);
-        ret.bx = c[1].to!int;
-        ret.by = c[2].to!int;
-    }
-    auto r2 = ctRegex!(`Prize: X=(\d+), Y=(\d+)`);
-    auto c = matchFirst(lines[2], r2);
-    assert(c);
-    ret.px = c[1].to!int;
-    ret.py = c[2].to!int;
-
-    return ret;
+Input parse(const ref string chunk) {
+    return Input(matchAll(chunk, ctRegex!(`(\d+)`)).map!"a.hit.to!long".staticArray!6);
 }
 
 Tuple!(long, long) solve(const ref Input input) {
@@ -61,9 +41,7 @@ void main() {
     long part1 = 0;
     long part2 = 0;
 
-    foreach (chunk; import("input/13.in").split("\n\n")) {
-        Input input = chunk.split("\n").filter!(l => l.length != 0).array.parse;
-
+    foreach (input; import("input/13.in").split("\n\n").map!parse) {
         auto c = solve(input);
         if (c[0] <= 100 && c[1] <= 100) {
             part1 += costA*c[0]+costB*c[1];
