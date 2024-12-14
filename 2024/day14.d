@@ -45,20 +45,16 @@ void main() {
     }
 
     writeln("part 1: ", q.fold!"a*b"(1));
-    
-    Input[] inputs = readLines!"input/14.in".map!(l => l.parse.move!(w, h, 68)).array;
-    // just draw until you find it lol
-    for (int k = 68; true; k += 101) {
-        inputs.each!((ref a) => a.move!(w, h, 101));
-        for (int i = 0; i < h; ++i) {
-            for (int j = 0; j < w; ++j) {
-                write(inputs.any!(a => a.px == j && a.py == i) ? "x" : ".");
-            }
-            writeln();
-        }
-        writeln(k+101, "\n");
-        Thread.sleep(dur!"msecs"(200));
-    }
 
-    writeln("part 2: ", part2);
+    Input[] inputs = readLines!"input/14.in".map!parse.array;
+
+    for (int k = 1;; ++k) {
+        inputs.each!((ref a) => a = a.move!(w, h, 1));
+        inputs.sort!((a, b) => a.px == b.px ? a.py < b.py : a.px < b.px);
+        if (inputs.uniq!((a, b) => a.px == b.px && a.py == b.py).fold!((a, e) => a+1)(0) == inputs.length) {
+            writeln("part 2: ", k);
+            break;
+        }
+    }
+    return;
 }
