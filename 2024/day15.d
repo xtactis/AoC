@@ -41,14 +41,12 @@ long gpsSum(const ref char[][] m) {
 long solve(ref char[][] m, const ref string insts) {
     int x, y;
     for (int i = 0; i < m.length; ++i) {
-        for (int j = 0; j < m[0].length; ++j) {
-            if (m[i][j] == '@') {
-                x = j;
-                y = i;
-            }
-        }
+        x = m[i].countUntil!"a == '@'".to!int;
+        if (x == -1) continue;
+        y = i;
+        break;
     }
-    const auto moveMap = [
+    immutable auto moveMap = [
         '>': tuple(0, 1),
         'v': tuple(1, 0),
         '<': tuple(0, -1),
@@ -74,17 +72,13 @@ void main() {
     char[][] m = chunks[0].split("\n").map!(s => s.dup()).array;
     string insts = chunks[1].split("\n").join();
 
-    char[][] m2 = [];
-    for (int i = 0; i < m.length; ++i) {
-        m2 ~= [[]];
-        for (int j = 0; j < m[0].length; ++j) {
-                 if (m[i][j] == '#') m2[i] ~= "##"; 
-            else if (m[i][j] == '.') m2[i] ~= "..";
-            else if (m[i][j] == 'O') m2[i] ~= "[]";
-            else if (m[i][j] == '@') m2[i] ~= "@.";
-            else assert(false);
-        }
-    }
+    immutable string[dchar] p2mapping = [
+        '#': "##",
+        '.': "..",
+        'O': "[]",
+        '@': "@."
+    ];
+    char[][] m2 = m.map!(r => r.map!(c => p2mapping[c]).join.dup).array;
 
     part1 = solve(m, insts);
     part2 = solve(m2, insts);
