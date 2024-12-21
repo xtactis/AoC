@@ -1,11 +1,10 @@
-import std.file, std.stdio, std.array, std.algorithm, std.conv, std.range, std.math;
+import std.file, std.stdio, std.array, std.algorithm, std.conv, std.range, std.math, std.getopt;
 import std.regex;
 import core.memory, core.thread.osthread, std.datetime;
 import std.typecons;
+import std.datetime.stopwatch: StopWatch, AutoStart, benchmark;
 
-auto readLines(string file)() {
-    return import(file).strip('\n').split("\n");
-}
+import helper;
 
 long[] parse(const ref string lines) {
     return matchAll(lines, ctRegex!(`(-?\d+)`)).map!"a.hit.to!long".array;
@@ -59,8 +58,11 @@ long dfs(long A, const ref long[] instructions, int i = 0) {
     return ret;
 }
 
-void main() {
+void main(string[] args) {
     GC.disable;
+
+    bool doBenchmark = false;
+    getopt(args, "bench", &doBenchmark);
 
     long[] part1;
     long part2 = 0;
@@ -69,9 +71,17 @@ void main() {
     long[] regs = parse(chunks[0]);
     long[] instructions = parse(chunks[1]);
 
-    part1 = execute(regs[0], regs[1], regs[2], instructions);
-    part2 = dfs(0, instructions);
-    
+    void solve() {
+        part1 = execute(regs[0], regs[1], regs[2], instructions);
+        part2 = dfs(0, instructions);
+    }
+    solve();
     writeln("part 1: ", part1.map!(to!string).join(",")); 
     writeln("part 2: ", part2);
+
+    if (doBenchmark) {
+        immutable int runs = 100;
+        auto result = benchmark!(solve)(runs);
+        writeln("\nexecuted in: ", result[0]/runs, " (avg of ", runs, " runs)");
+    }
 }

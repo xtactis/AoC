@@ -1,64 +1,11 @@
-import std.file, std.stdio, std.array, std.algorithm, std.conv, std.range, std.math;
+import std.file, std.stdio, std.array, std.algorithm, std.conv, std.range, std.math, std.getopt;
 import std.regex;
 import core.memory, core.thread.osthread, std.datetime;
 import std.typecons;
 import std.datetime.stopwatch: StopWatch, AutoStart, benchmark;
 import std.traits: hasIndirections;
 
-struct GrowableCircularQueue(T) {
-    public size_t length;
-    private size_t first, last;
-    private T[] A = [T.init];
-
-    this(T[] items...) pure nothrow @safe {
-        foreach (x; items)
-            push(x);
-    }
-
-    @property bool empty() const pure nothrow @safe @nogc {
-        return length == 0;
-    }
-
-    @property T front() pure nothrow @safe @nogc {
-        assert(length != 0);
-        return A[first];
-    }
-
-    T opIndex(in size_t i) pure nothrow @safe @nogc {
-        assert(i < length);
-        return A[(first + i) & (A.length - 1)];
-    }
-
-    void push(T item) pure nothrow @safe {
-        if (length >= A.length) { // Double the queue.
-            immutable oldALen = A.length;
-            A.length *= 2;
-            if (last < first) {
-                A[oldALen .. oldALen + last + 1] = A[0 .. last + 1];
-                static if (hasIndirections!T)
-                    A[0 .. last + 1] = T.init; // Help for the GC.
-                last += oldALen;
-            }
-        }
-        last = (last + 1) & (A.length - 1);
-        A[last] = item;
-        length++;
-    }
-
-    @property T pop() pure nothrow @safe @nogc {
-        assert(length != 0);
-        auto saved = A[first];
-        static if (hasIndirections!T)
-            A[first] = T.init; // Help for the GC.
-        first = (first + 1) & (A.length - 1);
-        length--;
-        return saved;
-    }
-}
-
-auto readLines(string file)() {
-    return import(file).strip('\n').split("\n");
-}
+import helper;
 
 const int[4] dx = [1, 0, -1, 0];
 const int[4] dy = [0, 1, 0, -1];
@@ -103,15 +50,16 @@ long picos(int coolCheat)(const ref string[] m, int x, int y, int cheats) {
     return cnt;
 }
 
-void main() {
+void main(string[] args) {
     GC.disable;
+
+    bool doBenchmark = false;
+    getopt(args, "bench", &doBenchmark);
 
     long part1 = 0;
     long part2 = 0;
+    immutable string[] m = readLines!"input/20.in";
 
-    string[] m = readLines!"input/20.in";
-
-    immutable int runs = 50;
     void solve() {
         part1 = 0;
         part2 = 0;
@@ -132,9 +80,14 @@ void main() {
             }
         }
     }
-    auto result = benchmark!(solve)(runs);
-
+    solve();
     writeln("part 1: ", part1); 
     writeln("part 2: ", part2);
-    writeln("\nexecuted in: ", result[0]/runs, " (avg of ", runs, " runs)");
+
+    if (doBenchmark) {
+        immutable int runs = 50;
+        auto result = benchmark!(solve)(runs);
+        writeln("\nexecuted in: ", result[0]/runs, " (avg of ", runs, " runs)");
+    }
+
 }

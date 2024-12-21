@@ -2,10 +2,9 @@ import std.file, std.stdio, std.array, std.algorithm, std.conv, std.range, std.m
 import std.regex;
 import core.memory, core.thread.osthread, std.datetime;
 import std.typecons, std.container;
+import std.datetime.stopwatch: StopWatch, AutoStart, benchmark;
 
-auto readLines(string file)() {
-    return import(file).strip('\n').split("\n");
-}
+import helper;
 
 void main() {
     GC.disable;
