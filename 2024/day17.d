@@ -11,40 +11,34 @@ long[] parse(const ref string lines) {
     return matchAll(lines, ctRegex!(`(-?\d+)`)).map!"a.hit.to!long".array;
 }
 
-long[] execute(long A, long B, long C, const ref long[] instructions) {
+long[] execute(long A, long B, long C, const ref long[] instructions, long i = 0) {
     long[] res;
-    for (long i = 0; i < instructions.length;) {
+    while (i < instructions.length) {
         long ins = instructions[i];
         long arg = instructions[i+1];
             
         long parseArg(long arg) {
             if (arg < 4) return arg;
             if (arg == 4) return A;
-            else if (arg == 5) return B;
-            else if (arg == 6) return C;
-            else assert(false);
+            if (arg == 5) return B;
+            if (arg == 6) return C;
+            assert(false);
         }
 
-        if (ins == 0) {
-            A >>= parseArg(arg);
-        } else if (ins == 1) {
-            B ^= arg;
-        } else if (ins == 2) {
-            B = parseArg(arg) & 7;
-        } else if (ins == 3) {
+             if (ins == 0) A >>= parseArg(arg);
+        else if (ins == 1) B ^= arg;
+        else if (ins == 2) B = parseArg(arg) & 7;
+        else if (ins == 3) {
             if (A != 0) {
                 i = arg;
                 continue;
             }
-        } else if (ins == 4) {
-            B ^= C;
-        } else if (ins == 5) {
-            res ~= parseArg(arg) & 7;
-        } else if (ins == 6) {
-            B = A >> parseArg(arg);
-        } else if (ins == 7) {
-            C = A >> parseArg(arg);
-        } else assert(false);
+        }
+        else if (ins == 4) B ^= C;
+        else if (ins == 5) res ~= parseArg(arg) & 7; 
+        else if (ins == 6) B = A >> parseArg(arg);
+        else if (ins == 7) C = A >> parseArg(arg);
+        else assert(false);
         
         i += 2;
     }
