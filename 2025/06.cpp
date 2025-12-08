@@ -13,49 +13,51 @@ int main() {
     for (const auto& line: vs) {
         m.emplace_back();
         for (const auto n: line | std::views::split(std::string(" "))) {
-            std::string ns {std::string_view(n)};
-            if (ns.size() == 0) continue;
+            if (n.size() == 0) continue;
+            std::string_view ns {n};
             if (ns == "*" || ns == "+") {
                 ops.emplace_back(ns[0]);
             } else {
-                m.back().emplace_back(std::stoull(ns));
+                m.back().emplace_back(0);
+                std::ignore = std::from_chars(ns.begin(), ns.end(), m.back().back());
             }
         }
     }
     m.pop_back();
-    std::vector<uint64_t> accs = m[0];
     for (int i = 0; i < ops.size(); ++i) {
+        uint64_t acc = m[0][i];
         for (int j = 1; j < m.size(); ++j) {
             if (ops[i] == '*') {
-                accs[i] *= m[j][i];
+                acc *= m[j][i];
             } else {
-                accs[i] += m[j][i];
+                acc += m[j][i];
             }
         }
+        p1 += acc;
     }
-    for (uint64_t x: accs) p1 += x;
 
-    std::vector<uint64_t> ta;
-    char op = ' ';
+    uint64_t prod = 1, acc = 0;
     for (int j = vs[0].size()-1; j >= 0; --j) {
-        std::string s;
-        for (int i = 0; i < vs.size(); ++i) {
-            s += vs[i][j];
+        uint64_t x = 0;
+        bool allSpace = true;
+        for (int i = 0; i < vs.size()-1; ++i) {
+            if (vs[i][j] == ' ') continue;
+            x *= 10;
+            x += vs[i][j]-48;
+            allSpace = false;
         }
-        std::cout << std::quoted(s) << '\n';
-        if (std::ranges::all_of(s, [](char c) {return c == ' ';})) continue;
-        char op = s.back();
-        s.pop_back();
-        ta.emplace_back(std::stoull(s));
+        if (allSpace) continue;
+        char op = vs.back()[j];
+        prod *= x;
+        acc += x;
         if (op != ' ') {
             if (op == '*') {
-                p2 += std::ranges::fold_left(ta, 1, std::multiplies<uint64_t>());
-                std::cout << std::ranges::fold_left(ta, 1, std::multiplies<uint64_t>()) << '\n';
+                p2 += prod;
             } else {
-                p2 += std::ranges::fold_left(ta, 0, std::plus<uint64_t>());
-                std::cout << std::ranges::fold_left(ta, 0, std::plus<uint64_t>()) << '\n';
+                p2 += acc;
             }
-            ta.clear();
+            prod = 1;
+            acc = 0;
         }
     }
 
